@@ -44,139 +44,132 @@ const rodIkon = new L.Icon({
     shadowSize:[41,41]
 });
 
-function spara(){
+function spara() {
+
     localStorage.setItem(
         "adresser",
         JSON.stringify(adresser)
     );
+
 }
 
-function rensaKartan(){
+function rensaKartan() {
 
-    markers.forEach(marker=>{
+    markers.forEach(marker => {
         map.removeLayer(marker);
     });
 
     markers = [];
+
 }
 
-function toggleKlar(index){
+function toggleKlar(index) {
 
     adresser[index].klar =
     !adresser[index].klar;
 
     spara();
     visaAdresser();
+
 }
 
-function radera(index){
+function redigera(index) {
 
-    if(!confirm("Radera adressen?")){
+    let adress =
+    prompt(
+        "Adress:",
+        adresser[index].adress
+    );
+
+    if (adress === null) {
         return;
     }
 
-    adresser.splice(index,1);
+    let portkod =
+    prompt(
+        "Portkod:",
+        adresser[index].portkod
+    );
+
+    if (portkod === null) {
+        return;
+    }
+
+    let info =
+    prompt(
+        "Anteckning:",
+        adresser[index].info
+    );
+
+    if (info === null) {
+        return;
+    }
+
+    adresser[index].adress =
+    adress;
+
+    adresser[index].portkod =
+    portkod;
+
+    adresser[index].info =
+    info;
 
     spara();
     visaAdresser();
+
 }
 
-function visaAdresser(){
+function radera(index) {
 
-    rensaKartan();
+    if (!confirm("Radera adressen?")) {
+        return;
+    }
 
-    const lista =
-    document.getElementById("adressLista");
+    adresser.splice(index, 1);
 
-    lista.innerHTML = "";
+    spara();
+    visaAdresser();
 
-    const antalKlara =
-    adresser.filter(a => a.klar).length;
-
-    document.getElementById(
-        "statistik"
-    ).innerHTML =
-    `✅ ${antalKlara} av ${adresser.length} klara`;
-
-    adresser.forEach((adress,index)=>{
-
-        if(!adress.lat || !adress.lng){
-            return;
-        }
-
-        if(
-            visaBaraKvar &&
-            adress.klar
-        ){
-            return;
-        }
-
-        const marker = L.marker(
-            [adress.lat, adress.lng],
-            {
-                icon:
-                adress.klar
-                ? gronIkon
-                : rodIkon
-            }
-        ).addTo(map);
-
-        marker.bindPopup(`
-            <b>${adress.adress}</b><br>
-            Portkod: ${adress.portkod}<br>
-            ${adress.info}<br><br>
-
-            <button
-            onclick="toggleKlar(${index})">
-            ${
-                adress.klar
-                ? '↩️ Ångra'
-                : '✅ Markera klar'
-            }
-            </button>
-        `);
-
-        markers.push(marker);
-
-        let div =
-        document.createElement("div");
-
-        div.className =
-        adress.klar
-        ? "adress klar"
-        : "adress";
-
-        div.innerHTML = `
-            <h3>${adress.adress}</h3>
-
-            <p>
-            <b>Portkod:</b>
-            ${adress.portkod}
-            </p>
-
-            <p>
-            ${adress.info}
-            </p>
-
-            <button
-            onclick="toggleKlar(${index})">
-            ${
-                adress.klar
-                ? '↩️ Ångra'
-                : '✅ Markera klar'
-            }
-            </button>
-
-            <button
-            class="radera"
-            onclick="radera(${index})">
-            🗑️ Radera
-            </button>
-        `;
-
-        lista.appendChild(div);
-    });
 }
+
+function exporteraJson() {
+
+    const data =
+    JSON.stringify(
+        adresser,
+        null,
+        2
+    );
+
+    const blob =
+    new Blob(
+        [data],
+        {
+            type:"application/json"
+        }
+    );
+
+    const url =
+    URL.createObjectURL(blob);
+
+    const a =
+    document.createElement("a");
+
+    a.href = url;
+
+    a.download =
+    "vargon-adresser.json";
+
+    document.body.appendChild(a);
+
+    a.click();
+
+    document.body.removeChild(a);
+
+    URL.revokeObjectURL(url);
+
+}
+
 function importeraJson() {
 
     const fil =
@@ -228,50 +221,118 @@ function importeraJson() {
 
 }
 
-function redigera(index){
+function visaAdresser() {
 
-    let adress =
-    prompt(
-        "Adress:",
-        adresser[index].adress
+    rensaKartan();
+
+    const lista =
+    document.getElementById(
+        "adressLista"
     );
 
-    if(adress === null){
-        return;
-    }
+    lista.innerHTML = "";
 
-    let portkod =
-    prompt(
-        "Portkod:",
-        adresser[index].portkod
-    );
+    const antalKlara =
+    adresser.filter(
+        a => a.klar
+    ).length;
 
-    if(portkod === null){
-        return;
-    }
+    document.getElementById(
+        "statistik"
+    ).innerHTML =
+    `✅ ${antalKlara} av ${adresser.length} klara`;
 
-    let info =
-    prompt(
-        "Anteckning:",
-        adresser[index].info
-    );
+    adresser.forEach((adress,index)=>{
 
-    if(info === null){
-        return;
-    }
+        if(!adress.lat || !adress.lng){
+            return;
+        }
 
-    adresser[index].adress =
-    adress;
+        if(
+            visaBaraKvar &&
+            adress.klar
+        ){
+            return;
+        }
 
-    adresser[index].portkod =
-    portkod;
+        const marker =
+        L.marker(
+            [adress.lat, adress.lng],
+            {
+                icon:
+                adress.klar
+                ? gronIkon
+                : rodIkon
+            }
+        ).addTo(map);
 
-    adresser[index].info =
-    info;
+        marker.bindPopup(`
+            <b>${adress.adress}</b><br>
+            Portkod: ${adress.portkod}<br>
+            ${adress.info}<br><br>
 
-    spara();
+            <button onclick="toggleKlar(${index})">
+                ${
+                    adress.klar
+                    ? "↩️ Ångra"
+                    : "✅ Markera klar"
+                }
+            </button>
 
-    visaAdresser();
+            <br><br>
+
+            <button onclick="redigera(${index})">
+                ✏️ Redigera
+            </button>
+        `);
+
+        markers.push(marker);
+
+        const div =
+        document.createElement(
+            "div"
+        );
+
+        div.className =
+        adress.klar
+        ? "adress klar"
+        : "adress";
+
+        div.innerHTML = `
+            <h3>${adress.adress}</h3>
+
+            <p>
+            <b>Portkod:</b>
+            ${adress.portkod}
+            </p>
+
+            <p>
+            ${adress.info}
+            </p>
+
+            <button onclick="toggleKlar(${index})">
+                ${
+                    adress.klar
+                    ? "↩️ Ångra"
+                    : "✅ Markera klar"
+                }
+            </button>
+
+            <button onclick="redigera(${index})">
+                ✏️ Redigera
+            </button>
+
+            <button
+                class="radera"
+                onclick="radera(${index})">
+                🗑️ Radera
+            </button>
+        `;
+
+        lista.appendChild(div);
+
+    });
+
 }
 
 map.on("click", function(e){
@@ -300,6 +361,7 @@ map.on("click", function(e){
 
     spara();
     visaAdresser();
+
 });
 
 document
@@ -317,6 +379,7 @@ document
     : "Visa bara kvarvarande";
 
     visaAdresser();
+
 });
 
 if(navigator.geolocation){
@@ -352,40 +415,12 @@ if(navigator.geolocation){
                 gpsMarker.bindPopup(
                     "📍 Din position"
                 );
+
             }
 
         }
     );
+
 }
 
 visaAdresser();
-function exporteraJson() {
-
-    const data =
-    JSON.stringify(
-        adresser,
-        null,
-        2
-    );
-
-    const blob =
-    new Blob(
-        [data],
-        {
-            type:"application/json"
-        }
-    );
-
-    const url =
-    URL.createObjectURL(blob);
-
-    const a =
-    document.createElement("a");
-
-    a.href = url;
-
-    a.download =
-    "vargon-adresser.json";
-
-    a.click();
-}
