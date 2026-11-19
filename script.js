@@ -177,7 +177,56 @@ function visaAdresser(){
         lista.appendChild(div);
     });
 }
+function importeraJson() {
 
+    const fil =
+    document.getElementById(
+        "importFil"
+    ).files[0];
+
+    if (!fil) {
+
+        alert(
+            "Välj en JSON-fil först."
+        );
+
+        return;
+    }
+
+    const reader =
+    new FileReader();
+
+    reader.onload =
+    function(event){
+
+        try {
+
+            adresser =
+            JSON.parse(
+                event.target.result
+            );
+
+            spara();
+
+            visaAdresser();
+
+            alert(
+                "Backup importerad!"
+            );
+
+        } catch {
+
+            alert(
+                "Ogiltig JSON-fil."
+            );
+
+        }
+
+    };
+
+    reader.readAsText(fil);
+
+}
 map.on("click", function(e){
 
     const adress =
