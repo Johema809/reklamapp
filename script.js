@@ -424,3 +424,5 @@ if(navigator.geolocation){
 }
 
 visaAdresser();
+console.log("SCRIPT LADDAD");
+console.log(typeof importeraJson);
