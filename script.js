@@ -227,6 +227,53 @@ function importeraJson() {
     reader.readAsText(fil);
 
 }
+
+function redigera(index){
+
+    let adress =
+    prompt(
+        "Adress:",
+        adresser[index].adress
+    );
+
+    if(adress === null){
+        return;
+    }
+
+    let portkod =
+    prompt(
+        "Portkod:",
+        adresser[index].portkod
+    );
+
+    if(portkod === null){
+        return;
+    }
+
+    let info =
+    prompt(
+        "Anteckning:",
+        adresser[index].info
+    );
+
+    if(info === null){
+        return;
+    }
+
+    adresser[index].adress =
+    adress;
+
+    adresser[index].portkod =
+    portkod;
+
+    adresser[index].info =
+    info;
+
+    spara();
+
+    visaAdresser();
+}
+
 map.on("click", function(e){
 
     const adress =
